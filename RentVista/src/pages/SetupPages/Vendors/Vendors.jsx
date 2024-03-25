@@ -121,12 +121,13 @@ const Vendors = () => {
         <div className="flex justify-between items-center mb-4">
           <h2 className="title">Vendor List</h2>
             <div className="flex items-center">
-              <label className="input input-bordered flex items-center gap-2 mr-2">
-                <input type="text" className="grow" placeholder="Search By Name"
+              <input
+                type="text"
+                placeholder="Search by Name"
                 value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)} />
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" className="w-4 h-4 opacity-70 m"><path fillRule="evenodd" d="M9.965 11.026a5 5 0 1 1 1.06-1.06l2.755 2.754a.75.75 0 1 1-1.06 1.06l-2.755-2.754ZM10.5 7a3.5 3.5 0 1 1-7 0 3.5 3.5 0 0 1 7 0Z" clipRule="evenodd" /></svg>
-            </label>
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="search w-full border border-gray-300 rounded-lg text-white"
+              />
               <AddButton onClick={openDialog} />
             </div>
           </div>
@@ -159,7 +160,7 @@ const Vendors = () => {
                <tbody>
                 {currentVendors.map((vendor, index) => (
                   <tr
-                    key={vendor.$id}
+                    key={vendor.id}
                     className={`text-center ${
                       index % 2 === 0 ? "bg-gray-800" : "bg-gray-700"
                     } hover:bg-gray-600 transition-colors duration-300`}

@@ -161,19 +161,11 @@ html, body {
   border-radius: 10px;
   cursor: pointer;
   }
-.table-container-small::-webkit-scrollbar {
-  width: 15px;
-}
 
-.table-container-small::-webkit-scrollbar-thumb {
-  background-color: rgb(196, 0, 0); /* bg-gray-800 equivalent */
-  border-radius: 6px;
-}
 
 .table-container-small {
-  scrollbar-color: #2d3748; /* bg-gray-800 equivalent */ 
-  scrollbar-width: thin;
-  height: auto;
+ 
+  height: 330px;
   max-height: 450px;
   overflow: auto;
   border-radius: 8px;
@@ -226,6 +218,7 @@ th:last-child {
 .statics {
   font-size: 1.5rem; 
   font-weight: bold;  }
+  
 
 /* Responsive styles for smaller screens */
 @media (max-width: 576px) {
@@ -294,6 +287,7 @@ th:last-child {
 }
 
 
+
 /* Responsive styles for medium screens */
 @media (min-width: 577px) and (max-width: 768px) {
   .login-container {
@@ -302,6 +296,7 @@ th:last-child {
     justify-content: center;
     margin-top: 4rem;
   }
+ 
   .signup-container {
     margin-top: 2rem;
     height: 580px; 

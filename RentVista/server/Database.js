@@ -2,10 +2,82 @@ import express from 'express';
 import cors from 'cors';
 import bcrypt from 'bcrypt';
 import db from './connect.js'; 
-
+import multer from "multer";
+import { fileURLToPath } from 'url';
+import fs from 'fs';
+import path from 'path';
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
 app.use(cors());
 app.use(express.json());
+
+// Define storage options
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    // Set the destination folder where the file will be stored
+    cb(null, 'uploads/');
+  },
+  filename: function (req, file, cb) {
+    // Set the filename to be unique by appending a timestamp
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    // Extract file extension
+    const ext = path.extname(file.originalname);
+    // Construct the filename
+    cb(null, file.fieldname + '-' + uniqueSuffix + ext);
+  }
+});
+
+// Initialize Multer with storage options
+const upload = multer({ storage: storage });
+
+
+// Route to handle file uploads
+app.post("/upload", upload.single("file"), async (req, res) => {
+  try {
+    // Check if a file was uploaded
+    if (!req.file) {
+      return res.status(400).json({ error: "No file uploaded" });
+    }
+
+    // If a file was uploaded, you can access its details via req.file
+      const fileName = req.file.filename;
+      const filePath = req.file.path;
+
+    // Respond with a success message
+    res.status(200).json({
+      success: true,
+      message: "File uploaded successfully",
+      fileName: fileName,
+      filePath: filePath,
+    });
+      
+  } catch (error) {
+    console.error("Error uploading file:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+// Define a route to handle file download
+app.get('/download/:filePath', (req, res) => {
+    const file = req.params.filePath;
+    const filePath = path.resolve(__dirname, file); // Resolve file path
+
+    // Check if file exists
+    if (fs.existsSync(filePath)) {
+        // Provide proper file name for download
+        const fileName = path.basename(filePath);
+        res.download(filePath, fileName, (err) => {
+            if (err) {
+                // Handle download error
+                console.error('Error downloading file:', err);
+                res.status(500).send('Error downloading file');
+            }
+        });
+    } else {
+        // If file does not exist, send 404 error
+        res.status(404).send('File not found');
+    }
+});
 
 // |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||//
 // ||||||||||||||||||||||||||||||||||||||| Authentication ||||||||||||||||||||||||||||||||||||//
@@ -16,7 +88,6 @@ app.use(express.json());
 // Route to add a new user
 app.post('/signup', async (req, res) => {
     const { name, email, password, phone } = req.body;
-    console.log('Adding user:', name, email, password, phone);
     const hashedPassword = await bcrypt.hash(password, 10); // Hash the password
     const sql = 'INSERT INTO users (name, email, password, phone) VALUES (?, ?, ?, ?)';
     db.query(sql, [name, email, hashedPassword, phone], (err, result) => {
@@ -64,7 +135,7 @@ app.post('/login', async (req, res) => {
 
 //departments_read
 app.get('/departments_re', (req, res) => {
-    const sql = 'SELECT * FROM departments';
+    const sql = "SELECT * FROM departments ORDER BY updated_at DESC";
     db.query(sql, (err, result) => {
         if (err) {
             console.log(err);
@@ -136,7 +207,7 @@ app.delete('/departments_del/:id', async (req, res) => {
 
 //Property_read
 app.get('/properties_re', (req, res) => {
-    const sql = 'SELECT * FROM properties';
+    const sql = "SELECT * FROM properties ORDER BY updated_at DESC";
     db.query(sql, (err, result) => {
         if (err) {
             console.log(err);
@@ -209,7 +280,7 @@ app.delete('/properties_del/:id', async (req, res) => {
 
 //Vendor_read
 app.get('/vendors_re', (req, res) => {
-    const sql = 'SELECT * FROM vendors';
+    const sql = "SELECT * FROM vendors ORDER BY updated_at DESC";
     db.query(sql, (err, result) => {
         if (err) {
             console.log(err);
@@ -259,6 +330,7 @@ app.post('/vendors_up', async (req, res) => {
     }
 });
 
+// Vendor_delete
 app.delete('/vendors_del/:id', async (req, res) => {
     const { id } = req.params;
     if (!id) {
@@ -275,6 +347,206 @@ app.delete('/vendors_del/:id', async (req, res) => {
         res.status(500).json({ error: 'Internal Server Error' });
     }
 });
+
+// |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||//
+// ||||||||||||||||||||||||||||||||||||||| Contract  |||||||||||||||||||||||||||||||||||||||||//
+// |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||//
+// |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||//
+
+//Contract_read
+app.get('/contracts_re', (req, res) => {
+    const sql = 'SELECT * FROM rent_contracts ORDER BY updated_at DESC;';
+    db.query(sql, (err, result) => {
+        if (err) {
+            console.log(err);
+        }
+       return res.json(result);
+    })
+    
+})
+
+// Contract_write
+app.post('/contracts_wr', async (req, res) => {
+  const { vendor, property, monthlyRent, duration, numOfInstallment, startDate, expiryDate, paymentStartDate, frequency, code, remarks, status,created_at, updated_at,file } = req.body;
+
+  // Validate required fields
+  if (!vendor || !property || !monthlyRent || !duration || !numOfInstallment || !startDate || !expiryDate || !paymentStartDate || !frequency || !code || !created_at || !updated_at ) {
+      console.log('Missing required fields');
+    }
+          console.log("File:", file);
+
+  try {
+    const sql = 'INSERT INTO rent_contracts (vendor_id, property_id, monthly_installment, no_of_installment,duration,  start_date, expiry_date, payment_start_date, frequent_of_payment, agreement, remark, status, created_at, updated_at,file_path) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?)';
+    const result = await db.query(sql, [vendor, property, monthlyRent, numOfInstallment,duration,startDate, expiryDate, paymentStartDate, frequency, code, remarks,status, created_at, updated_at,file]);
+
+    const insertedContract = result[0]; 
+    res.status(201).json({ message: 'Contract added successfully', contract: insertedContract });
+  } catch (error) {
+    console.log('Error adding contract:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+// Contract_update
+app.post('/contracts_up', async (req, res) => {
+  const { id, vendor, property, monthlyRent, duration, numOfInstallment, startDate, expiryDate, paymentStartDate, frequency, code, remarks, status, updated_at } = req.body;
+
+  // Validate required fields
+  if (!id || !vendor || !property || !monthlyRent || !duration || !numOfInstallment || !startDate || !expiryDate || !paymentStartDate || !frequency || !code || !updated_at) {
+    return res.status(400).json({ error: 'Missing required fields' });
+  }
+
+  try {
+    const sql = 'UPDATE rent_contracts SET vendor_id = ?, property_id = ?, monthly_installment = ?, no_of_installment = ?, duration = ?, start_date = ?, expiry_date = ?, payment_start_date = ?, frequent_of_payment = ?, agreement = ?, remark = ?, status = ?, updated_at = ? WHERE id = ?';
+    const result = await db.query(sql, [vendor, property, monthlyRent, numOfInstallment, duration, startDate, expiryDate, paymentStartDate, frequency, code, remarks, status, updated_at, id]);
+
+    const updatedContract = result[0]; 
+    res.status(200).json({ message: 'Contract updated successfully', contract: updatedContract });
+  } catch (error) {
+    console.log('Error updating contract:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+// Contract_delete
+app.delete('/contracts_del/:id', async (req, res) => {
+  const { id } = req.params;
+  if (!id) {
+    return res.status(400).json({ error: 'Missing required field' });
+  }
+  try {
+    const sql = 'DELETE FROM rent_contracts WHERE id = ?';
+    const result = await db.query(sql, [id]);
+    const deletedContracts = result[0];
+
+    res.status(200).json({ message: 'Contract deleted successfully', deletedContracts });
+  } catch (error) {
+    console.log('Error deleting contract:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+// |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||//
+// ||||||||||||||||||||||||||||||||||||||| Schedule  |||||||||||||||||||||||||||||||||||||||||//
+// |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||//
+
+//Schedule_read_specific
+app.get("/schedule/:id", (req, res) => {
+  const contractId = req.params.id; 
+  const sql =
+    "SELECT * FROM payment_schedules WHERE rent_contract_id = ? ORDER BY updated_at DESC";
+  db.query(sql, [contractId], (err, result) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).json({ error: "Internal server error" }); // Send error response if there's an error
+    }
+    return res.json(result); // Send the result as JSON response
+  });
+});
+
+//Schedule_read_all
+app.get("/Schedule_re", (req, res) => {
+  const sql = "SELECT DISTINCT rent_contract_id FROM payment_schedules WHERE rent_contract_id IS NOT NULL ORDER BY rent_contract_id ASC";
+  db.query(sql, (err, result) => {
+    if (err) {
+      console.log(err);
+    }
+    return res.json(result);
+  });
+});
+
+//Schedule_write
+app.post("/schedules_wr", async (req, res) => {
+  const {
+    contract_id,
+    next_payment_date,
+    agreement,
+    payment_amount,
+    status,
+    created_at,
+    updated_at,
+  } = req.body;
+
+  // Validate required fields
+  if (
+    !contract_id ||
+    !next_payment_date ||
+    !payment_amount ||
+    !agreement ||
+    !status ||
+    !created_at ||
+    !updated_at
+  ) {
+    console.log("Missing required fields");
+    return res.status(400).json({ error: "Missing required fields" });
+  }
+
+  try {
+    const sql =
+    "INSERT INTO payment_schedules (rent_contract_id, next_payment_date, payment_amount, status, created_at, updated_at,agreement) VALUES (?, ?, ?, ?, ?, ?,?)";
+    const result = await db.query(sql, [
+      contract_id,
+      next_payment_date,
+      payment_amount,
+      status,
+      created_at,
+      updated_at,
+      agreement,
+    ]);
+
+    const insertedSchedule = result[0];
+    console.log("Schedule added successfully:", insertedSchedule);
+    return res.status(201).json({
+      message: "Schedule added successfully",
+      schedule: insertedSchedule,
+    });
+  } catch (error) {
+    console.log("Error adding schedule:", error);
+    return res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
+//Schedule_update
+app.post("/schedules_up", async (req, res) => {
+  const { id, next_payment_date, payment_amount, updated_at } = req.body;
+
+  if (!id || !next_payment_date || !payment_amount || !updated_at) {
+    return res.status(400).json({ error: "Missing required fields" });
+  }
+
+  try {
+    const sql =
+    "UPDATE payment_schedules SET next_payment_date = ?, payment_amount = ?, updated_at = ? WHERE id = ?";
+    await db.query(sql, [next_payment_date, payment_amount, updated_at, id]);
+    res.status(200).json({ message: "Schedule updated successfully" });
+  } catch (error) {
+    console.log("Error updating schedule:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
+// Schedule_delete
+app.delete("/schedules_del/:id", async (req, res) => {
+  const { id } = req.params;
+  if (!id) {
+    return res.status(400).json({ error: "Missing required field" });
+  }
+  try {
+    const sql = "DELETE  FROM payment_schedules WHERE rent_contract_id = ?";
+    const result = await db.query(sql, [id]);
+    const deletedSchedules = result[0];
+
+    res.status(200).json({
+      message: "Schedules deleted successfully",
+      deletedSchedules,
+    });
+  } catch (error) {
+    console.log("Error deleting Schedules:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
+
 
 const port = 5050;
 app.listen(port, () => {

@@ -32,10 +32,8 @@ const App = () => {
                     breakpoint="lg"
                     collapsedWidth="0"
                     onBreakpoint={(broken) => {
-                        console.log(broken);
                     }}
                     onCollapse={(collapsed, type) => {
-                        console.log(collapsed, type);
                     }}
                     //   style={{
                     //     overflow: 'auto',
@@ -53,6 +51,7 @@ const App = () => {
                 >
                     <CustomHeader
                         style={{
+                            position: 'fixed',
                             background: "#2d3748",
                         }}
                     ></CustomHeader>

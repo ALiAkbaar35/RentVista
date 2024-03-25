@@ -10,7 +10,6 @@ import {
 } from "@ant-design/icons";
 import { Menu as AntMenu } from "antd";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../../contexts/authContext";
 
 const createItem = (label, key, icon, children, type) => ({
     key,
@@ -27,12 +26,16 @@ const items = [
         createItem("Department", "Department", <ApartmentOutlined />),
         createItem("Property", "Property", <HomeOutlined />),
         createItem("Vendor", "Vendors", <UserOutlined />),
+        
+    ]),
+
+    createItem("Transaction", "Transaction", <AppstoreOutlined />, [
+        createItem("Contract", "Contract", <ContactsOutlined />),  
     ]),
 ];
 
 const Sidebar = () => {
     const navigate = useNavigate();
-    const { user } = useAuth();
 
     const renderMenuItems = (items) => {
         return items.map((item) =>

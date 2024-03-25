@@ -6,7 +6,7 @@ import { useProperty } from "../../../contexts/PropertyContext"; // Import Prope
 import AddButton from "../../../components/atoms/AddButton";
 import ConfirmationDialog from "../../../components/atoms/ConfirmationDialog";
 import "../../../App.css";
-import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
+import { useDepartment } from "../../../contexts/DepartmentContext";
 
 const Property = () => {
   const { propertyItems, fetchData, deletePropertyItem } = useProperty(); // Use PropertyContext functions
@@ -14,7 +14,8 @@ const Property = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editedPropertyItem, setEditedPropertyItem] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const [propertyItemsPerPage] = useState(8); // Rows per page
+  const [propertyItemsPerPage] = useState(8);
+  const { departmentItems } = useDepartment();
   const [confirmationDialog, setConfirmationDialog] = useState({
     isOpen: false,
     title: "",
@@ -148,7 +149,7 @@ const Property = () => {
               <tbody>
                 {currentPropertyItems.map((propertyItem, index) => (
                   <tr
-                    key={propertyItem.$id}
+                    key={propertyItem.id}
                     className={`text-center ${
                       index % 2 === 0 ? "bg-gray-800" : "bg-gray-700"
                     } hover:bg-gray-600 transition-colors duration-300`}
@@ -175,7 +176,7 @@ const Property = () => {
                       </button>
                     </td>
                     <td className="px-2 py-2">{propertyItem.code}</td>
-                    <td className="px-2 py-2">{propertyItem.department_id}</td>
+                    <td className="px-2 py-2">{departmentItems.find((dept) => dept.id === propertyItem.department_id)?.description || "Unknown"}</td>
                     <td className="px-2 py-2">{propertyItem.description}</td>
                     <td className="px-2 py-2">{propertyItem.address}</td>
                     <td className="px-2 py-2">

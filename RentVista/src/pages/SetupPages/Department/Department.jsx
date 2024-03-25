@@ -63,7 +63,7 @@ const Department = () => {
     setEditedDepartmentItem(departmentItem);
     openDialog();
   };
-  
+
   const handleDelete = async (departmentItemId) => {
     showConfirmationDialog(
       "Delete Department Item",
@@ -81,12 +81,11 @@ const Department = () => {
     );
   };
 
-const filterDepartmentItemsBySearchTerm = (departmentItem) => {
-  const searchValue = searchTerm.toLowerCase();
-  const departmentItemCode = departmentItem.code.toLowerCase();
-  return departmentItemCode.includes(searchValue);
-};
-
+  const filterDepartmentItemsBySearchTerm = (departmentItem) => {
+    const searchValue = searchTerm.toLowerCase();
+    const departmentItemCode = departmentItem.code.toLowerCase();
+    return departmentItemCode.includes(searchValue);
+  };
 
   const paginate = (pageNumber) => {
     setCurrentPage(pageNumber);
@@ -99,7 +98,8 @@ const filterDepartmentItemsBySearchTerm = (departmentItem) => {
     : departmentItems;
 
   const indexOfLastDepartmentItem = currentPage * departmentItemsPerPage;
-  const indexOfFirstDepartmentItem = indexOfLastDepartmentItem - departmentItemsPerPage;
+  const indexOfFirstDepartmentItem =
+    indexOfLastDepartmentItem - departmentItemsPerPage;
   const currentDepartmentItems = filteredDepartmentItems.slice(
     indexOfFirstDepartmentItem,
     indexOfLastDepartmentItem
@@ -112,12 +112,13 @@ const filterDepartmentItemsBySearchTerm = (departmentItem) => {
           <div className="flex justify-between items-center mb-4">
             <h2 className="title">Department List</h2>
             <div className="flex items-center">
-              <label className="input input-bordered flex items-center gap-2 mr-2">
-                <input type="text" className="grow" placeholder="Search By Name"
-                  value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)} />
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" className="w-4 h-4 opacity-70 m"><path fillRule="evenodd" d="M9.965 11.026a5 5 0 1 1 1.06-1.06l2.755 2.754a.75.75 0 1 1-1.06 1.06l-2.755-2.754ZM10.5 7a3.5 3.5 0 1 1-7 0 3.5 3.5 0 0 1 7 0Z" clipRule="evenodd" /></svg>
-            </label>
+              <input
+                type="text"
+                placeholder="Search by Name"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="search w-full border border-gray-300 rounded-lg text-white"
+              />
               <AddButton onClick={openDialog} />
             </div>
           </div>
@@ -131,99 +132,109 @@ const filterDepartmentItemsBySearchTerm = (departmentItem) => {
                 }}
               >
                 <tr>
-                  <th className="rounded-tl-lg  px-4 py-3">
-                    Actions
-                  </th>
+                  <th className="rounded-tl-lg  px-4 py-3">Actions</th>
                   <th className="px-4 py-3">Code</th>
                   <th className="px-4 py-3">Description</th>
                   <th className="px-4 py-3">created_at</th>
-                  <th className="rounded-tr-lg px-4 py-3">
-                    updated_at
-                  </th>
+                  <th className="rounded-tr-lg px-4 py-3">updated_at</th>
                 </tr>
               </thead>
-             {currentDepartmentItems.map((departmentItem, index) => (
-              <tr
-                key={departmentItem.$id}
-                className={`text-center ${
-                  index % 2 === 0 ? "bg-gray-800" : "bg-gray-700"
-                } hover:bg-gray-600 transition-colors duration-300`}
-                style={{ marginBottom: "10px" }}
-              >
-                <td
-                  className={`${
-                    index === currentDepartmentItems.length - 1 ? "rounded-bl-lg" : ""
-                  } px-2 py-2`}
+              <tbody>
+                {currentDepartmentItems.map((departmentItem, index) => (
+                  <tr
+                    key={departmentItem.id}
+                    className={`text-center ${
+                      index % 2 === 0 ? "bg-gray-800" : "bg-gray-700"
+                    } hover:bg-gray-600 transition-colors duration-300`}
+                    style={{ marginBottom: "10px" }}
                   >
-                  <button
-                    onClick={() => handleEdit(departmentItem)}
-                    className="mr-2"
-                    style={{ color: "yellow" }}
-                  >
-                    <FaEdit />
-                  </button>
-                  <button
-                    onClick={() => handleDelete(departmentItem.id)}
-                    className="mr-2"
-                    style={{ color: "red" }}
-                  >
-                    <FaTrash />
-                  </button>
-                </td>
-                <td className="px-2 py-2">{departmentItem.code}</td>
-                <td className="px-2 py-2">{departmentItem.description}</td>
-                <td className="px-2 py-2">
-                  {new Date(departmentItem.created_at).toLocaleString("en-US", {
-                    year: "numeric",
-                    month: "2-digit",
-                    day: "2-digit",
-                  })}
-                </td>
-                <td
-                  className={`${
-                    index === currentDepartmentItems.length - 1 ? "rounded-br-lg" : ""
-                  } px-2 py-2`}
-                >
-                  {new Date(departmentItem.updated_at).toLocaleString("en-US", {
-                    year: "numeric",
-                    month: "2-digit",
-                    day: "2-digit",
-                  })}
-                </td>
-              </tr>
-            ))}
-
+                    <td
+                      className={`${
+                        index === currentDepartmentItems.length - 1
+                          ? "rounded-bl-lg"
+                          : ""
+                      } px-2 py-2`}
+                    >
+                      <button
+                        onClick={() => handleEdit(departmentItem)}
+                        className="mr-2"
+                        style={{ color: "yellow" }}
+                      >
+                        <FaEdit />
+                      </button>
+                      <button
+                        onClick={() => handleDelete(departmentItem.id)}
+                        className="mr-2"
+                        style={{ color: "red" }}
+                      >
+                        <FaTrash />
+                      </button>
+                    </td>
+                    <td className="px-2 py-2">{departmentItem.code}</td>
+                    <td className="px-2 py-2">{departmentItem.description}</td>
+                    <td className="px-2 py-2">
+                      {new Date(departmentItem.created_at).toLocaleString(
+                        "en-US",
+                        {
+                          year: "numeric",
+                          month: "2-digit",
+                          day: "2-digit",
+                        }
+                      )}
+                    </td>
+                    <td
+                      className={`${
+                        index === currentDepartmentItems.length - 1
+                          ? "rounded-br-lg"
+                          : ""
+                      } px-2 py-2`}
+                    >
+                      {new Date(departmentItem.updated_at).toLocaleString(
+                        "en-US",
+                        {
+                          year: "numeric",
+                          month: "2-digit",
+                          day: "2-digit",
+                        }
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
             </table>
           </div>
           <div className="pagination-text">
-            <p className='text-sm text-white pagination-text'>
+            <p className="text-sm text-white pagination-text">
               Showing
-              <span className=' ml-1 mr-1'>{indexOfFirstDepartmentItem + 1}</span>
+              <span className=" ml-1 mr-1">
+                {indexOfFirstDepartmentItem + 1}
+              </span>
               to
-              <span className=' ml-1 mr-1'>{Math.min(indexOfLastDepartmentItem, totalEntities)}</span>
+              <span className=" ml-1 mr-1">
+                {Math.min(indexOfLastDepartmentItem, totalEntities)}
+              </span>
               of
-              <span className='ml-1 mr-1'> {totalEntities}</span>
+              <span className="ml-1 mr-1"> {totalEntities}</span>
               results
             </p>
           </div>
           <div className="join pagination flex justify-end">
-          <button
-            onClick={() => paginate(currentPage - 1)}
-            disabled={currentPage === 1}
-            className="join-item btn"
-          >
-            «
-          </button>
-          <button className="join-item btn">Page {currentPage}</button>
-          <button
-            onClick={() => paginate(currentPage + 1)}
-            disabled={indexOfLastDepartmentItem >= totalEntities}
-            className="join-item btn"
-          >
-            »
-          </button>
-        </div>
-
+            <button
+              onClick={() => paginate(currentPage - 1)}
+              disabled={currentPage === 1}
+              className="join-item btn"
+            >
+              «
+            </button>
+            <button className="join-item btn">Page {currentPage}</button>
+            <button
+              onClick={() => paginate(currentPage + 1)}
+              disabled={indexOfLastDepartmentItem >= totalEntities}
+              className="join-item btn"
+            >
+              »
+            </button>
+          </div>
         </div>
         <AddDepartment
           onDepartmentItemAdded={handleDepartmentItemAdded}

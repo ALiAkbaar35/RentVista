@@ -5,6 +5,7 @@ import Routes from "./routes/Routes";
 import { DepartmentProvider } from "./contexts/DepartmentContext";
 import { PropertyProvider } from "./contexts/PropertyContext";
 import { VendorProvider } from "./contexts/VendorContext";
+import {ContractProvider} from "./contexts/ContractContext";
 
 function App() {
     return (
@@ -12,7 +13,9 @@ function App() {
         <DepartmentProvider>
           <PropertyProvider>
             <VendorProvider>
-            <Routes />
+            <ContractProvider>
+                <Routes />
+            </ContractProvider>   
             </VendorProvider>
           </PropertyProvider>
           </DepartmentProvider>

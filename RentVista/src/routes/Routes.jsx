@@ -10,6 +10,7 @@ import Profile from "../pages/AuthPages/Profile";
 import Department from "../pages/SetupPages/Department/Department";
 import Property from "../pages/SetupPages/Property/Property";
 import Vendors from "../pages/SetupPages/Vendors/Vendors";
+import Contract from "../pages/TransactionPages/Contract/Contract";
 
 
 const AppRoutes = () => {
@@ -25,6 +26,7 @@ const AppRoutes = () => {
           <Route path="Department" element={<Department />} />
           <Route path="Property" element={<Property />} />
           <Route path="Vendors" element={<Vendors />} />
+          <Route path="Contract" element={<Contract />} />
           <Route path="Logout" element={<Logout />} />           
         </Route>
       </Routes>
